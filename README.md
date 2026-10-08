@@ -20,14 +20,14 @@
 
 ## 检查更新机制
 
-App 内「我的 → 检查更新」会通过 **jsDelivr CDN** 拉取本仓库的 `CHANGELOG.md`，提取最新版本号与用户对比：
+App 内「我的 → 检查更新」通过 **Capacitor HttpNative**（原生 HTTP 客户端）直接拉取本仓库的 `CHANGELOG.md`，提取最新版本号与用户对比：
 
 ```
-https://cdn.jsdelivr.net/gh/zhongda-st/cardwallet-release@main/CHANGELOG.md
+https://gitee.com/zhongda-st/cardwallet-release/raw/main/CHANGELOG.md
 ```
 
-> jsDelivr CDN 提供 CORS 支持，App WebView 可直接 fetch。
-> 拉取的是公开仓库，无需 token，无访问限制。
+> HttpNative 走原生网络层，**不受 WebView CORS 限制**。
+> 公开仓库匿名访问，无需 token。
 
 ## 部署下载页
 
