@@ -179,14 +179,14 @@
   <!-- 左侧品牌区（仅 PC 显示） -->
   <div class="hero">
     <h1>卡包应用</h1>
-    <p class="hero-sub">安全管理你的银行卡、身份证、会员卡、驾驶证等重要卡片。数据加密存储于本地设备，无需联网，隐私无忧。</p>
+    <p class="hero-sub">一张卡片管理所有卡。银行卡号一键复制、证件照高清保存打印，需要时秒级调取，告别翻找相册和聊天记录。</p>
     <ul class="hero-features">
-      <li>多种卡片类型分类管理</li>
-      <li>拍照 OCR 识别，自动录入</li>
-      <li>AES 加密存储，保护隐私</li>
-      <li>到期提醒，及时续费换证</li>
-      <li>PDF 导出，方便备份打印</li>
-      <li>完全离线，数据不出设备</li>
+      <li>银行卡号一键复制，转账不再手输</li>
+      <li>证件照高清保存，随时打印复印</li>
+      <li>拍照 OCR 识别，自动录入卡片信息</li>
+      <li>多种卡片分类，查找一目了然</li>
+      <li>到期提醒，续费换证不遗漏</li>
+      <li>PDF 导出，备份存档更方便</li>
     </ul>
   </div>
 
@@ -194,26 +194,21 @@
   <div class="card">
     <div class="logo">💳</div>
     <h2>卡包应用</h2>
-    <p class="subtitle">安全管理你的银行卡、身份证、会员卡</p>
-    <div class="version-tag" id="versionTag">v1.4.5 · 最新版</div>
+    <p class="subtitle">银行卡号一键复制 · 证件照随时打印</p>
+    <div class="version-tag" id="versionTag">v1.4.6 · 最新版</div>
 
-    <a class="btn btn-primary" id="downloadPrimary" href="apk/cardwallet-latest.apk">⬇️ 下载 APK（v1.4.5）</a>
+    <a class="btn btn-primary" id="downloadPrimary" href="apk/cardwallet-latest.apk">⬇️ 下载 APK（v1.4.6）</a>
     <a class="btn btn-secondary" id="downloadBackup" href="https://raw.githubusercontent.com/Tony-zd/cardwallet-release/main/apk/cardwallet-latest.apk">🪞 备用下载（GitHub Raw）</a>
 
     <div class="features">
       <h3>主要功能</h3>
       <ul>
-        <li>多种卡片类型管理</li>
-        <li>拍照 OCR 识别，自动录入</li>
-        <li>数据加密存储，保护隐私</li>
-        <li>到期提醒，及时续费换证</li>
-        <li>PDF 导出，方便备份打印</li>
+        <li>银行卡号一键复制</li>
+        <li>证件照高清保存打印</li>
+        <li>拍照 OCR 自动录入</li>
+        <li>多卡片分类管理</li>
+        <li>到期提醒，及时换证</li>
       </ul>
-    </div>
-
-    <div class="changelog" id="changelogBox">
-      <h3>更新日志</h3>
-      <div id="changelogContent">加载中...</div>
     </div>
 
     <div class="notice">
@@ -229,29 +224,5 @@
   </div>
 </div>
 
-<script>
-// 异步加载 CHANGELOG，展示最新 3 个版本
-(async function() {
-  try {
-    const res = await fetch('CHANGELOG.md');
-    if (!res.ok) { document.getElementById('changelogContent').textContent = '暂无'; return; }
-    const text = await res.text();
-    const blocks = text.split(/^---$/m).filter(s => /##\s+v/.test(s)).slice(0, 3);
-    let html = '';
-    for (const blk of blocks) {
-      const vm = blk.match(/##\s+v(\d+\.\d+\.\d+)\s*[—-]?\s*(\d{4}-\d{2}-\d{2})?/);
-      if (!vm) continue;
-      const ver = vm[1], date = vm[2] || '';
-      const bullets = (blk.match(/^\s*[•·\-\*]\s+.+$/gm) || []).slice(0, 4).map(s => s.replace(/^\s*[•·\-\*]\s+/, '').trim());
-      html += `<b>v${ver}</b>${date ? ' · ' + date : ''}<br>`;
-      for (const b of bullets) html += `&nbsp;&nbsp;• ${b.replace(/\*\*/g, '')}<br>`;
-      html += '<br>';
-    }
-    document.getElementById('changelogContent').innerHTML = html || '暂无';
-  } catch (e) {
-    document.getElementById('changelogContent').textContent = '加载失败';
-  }
-})();
-</script>
 </body>
 </html>
