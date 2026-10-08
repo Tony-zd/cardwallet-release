@@ -29,6 +29,17 @@ https://gitee.com/zhongda-st/cardwallet-release/raw/main/CHANGELOG.md
 > HttpNative 走原生网络层，**不受 WebView CORS 限制**。
 > 公开仓库匿名访问，无需 token。
 
+## 下载源
+
+| 通道 | URL | 备注 |
+|---|---|---|
+| Gitee Pages | https://zhongda-st.gitee.io/cardwallet-release/ | 主入口（需先开启 Pages） |
+| GitHub Pages | https://tony-zd.github.io/cardwallet-release/ | 备用入口（需先开启 Pages） |
+| GitHub Raw | https://raw.githubusercontent.com/Tony-zd/cardwallet-release/main/apk/cardwallet-latest.apk | APK 直链，无需 Pages |
+| Gitee Raw | https://gitee.com/zhongda-st/cardwallet-release/raw/main/CHANGELOG.md | CHANGELOG 直链，App 检查更新源 |
+
+> GitHub raw 支持 12MB APK 直链下载（Gitee raw 对大文件返回 403）。
+
 ## 部署下载页
 
 ### Gitee Pages
@@ -48,8 +59,8 @@ https://gitee.com/zhongda-st/cardwallet-release/raw/main/CHANGELOG.md
 1. 在代码仓库打包新版 APK
 2. 复制 APK 到本仓库 `apk/` 目录，同时覆盖 `cardwallet-latest.apk`
 3. 更新 `CHANGELOG.md`，在顶部新增 `## vX.Y.Z — YYYY-MM-DD` 段落
-4. 提交并推送到 Gitee/GitHub
-5. 等待 jsDelivr CDN 缓存刷新（约 10 分钟），App 即可检测到新版本
+4. 提交并推送到 Gitee 和 GitHub
+5. App 检查更新时即时拉取最新 CHANGELOG（GitHub raw 有约 5 分钟缓存）
 
 ## 联系反馈
 
