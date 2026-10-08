@@ -1,37 +1,56 @@
-# cardwallet-release
+# CardWallet 卡包应用 · 公开下载仓库
 
-#### 介绍
-CardWallet 卡包应用公开下载仓库（APK + CHANGELOG + 下载页）
+> 本仓库专门用于存放 CardWallet 卡包应用的发布产物，与代码仓库分离。
+> 代码仓库为私有，不对外开放。
 
-#### 软件架构
-软件架构说明
+## 下载
 
+- **最新版本**：[v1.4.1](apk/cardwallet-latest.apk)
+- **历史版本**：见 [apk/](apk/) 目录
 
-#### 安装教程
+## 文件结构
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+| 文件/目录 | 说明 |
+|---|---|
+| `apk/cardwallet-latest.apk` | 最新版 APK（始终是最新） |
+| `apk/cardwallet-vX.Y.Z.apk` | 历史归档 APK |
+| `CHANGELOG.md` | 版本更新日志（App 内检查更新会读取此文件） |
+| `index.html` | 下载引导页（部署到 Gitee Pages / GitHub Pages） |
+| `pay-qrcode.png` | 激活码购买付款码（App 内购买激活码弹窗展示） |
 
-#### 使用说明
+## 检查更新机制
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+App 内「我的 → 检查更新」会通过 **jsDelivr CDN** 拉取本仓库的 `CHANGELOG.md`，提取最新版本号与用户对比：
 
-#### 参与贡献
+```
+https://cdn.jsdelivr.net/gh/zhongda-st/cardwallet-release@main/CHANGELOG.md
+```
 
-1.  Fork 本仓库
-2.  新建 Feat_xxx 分支
-3.  提交代码
-4.  新建 Pull Request
+> jsDelivr CDN 提供 CORS 支持，App WebView 可直接 fetch。
+> 拉取的是公开仓库，无需 token，无访问限制。
 
+## 部署下载页
 
-#### 特技
+### Gitee Pages
 
-1.  使用 Readme\_XXX.md 来支持不同的语言，例如 Readme\_en.md, Readme\_zh.md
-2.  Gitee 官方博客 [blog.gitee.com](https://blog.gitee.com)
-3.  你可以 [https://gitee.com/explore](https://gitee.com/explore) 这个地址来了解 Gitee 上的优秀开源项目
-4.  [GVP](https://gitee.com/gvp) 全称是 Gitee 最有价值开源项目，是综合评定出的优秀开源项目
-5.  Gitee 官方提供的使用手册 [https://gitee.com/help](https://gitee.com/help)
-6.  Gitee 封面人物是一档用来展示 Gitee 会员风采的栏目 [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)
+1. 进入仓库 → 服务 → Gitee Pages
+2. 部署分支：`main`，目录：`/`
+3. 访问地址：`https://zhongda-st.gitee.io/cardwallet-release/`
+
+### GitHub Pages
+
+1. 进入仓库 → Settings → Pages
+2. Source：`Deploy from a branch`，分支 `main` / `root`
+3. 访问地址：`https://tony-zd.github.io/cardwallet-release/`
+
+## 新版本发布流程
+
+1. 在代码仓库打包新版 APK
+2. 复制 APK 到本仓库 `apk/` 目录，同时覆盖 `cardwallet-latest.apk`
+3. 更新 `CHANGELOG.md`，在顶部新增 `## vX.Y.Z — YYYY-MM-DD` 段落
+4. 提交并推送到 Gitee/GitHub
+5. 等待 jsDelivr CDN 缓存刷新（约 10 分钟），App 即可检测到新版本
+
+## 联系反馈
+
+- 邮箱：sunt.flow@gmail.com

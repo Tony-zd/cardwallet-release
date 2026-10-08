@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>卡包应用 - 下载</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    color: #333;
+  }
+  .card {
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    max-width: 480px;
+    width: 100%;
+    padding: 32px 24px;
+    text-align: center;
+  }
+  .logo {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 16px;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+  }
+  h1 { font-size: 24px; margin-bottom: 8px; }
+  .subtitle { color: #666; font-size: 14px; margin-bottom: 24px; }
+  .version-tag {
+    display: inline-block;
+    background: #eef2ff;
+    color: #6366f1;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 24px;
+  }
+  .btn {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: transform 0.15s, box-shadow 0.15s;
+    margin-bottom: 12px;
+  }
+  .btn-primary { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff; }
+  .btn-primary:active { transform: scale(0.98); }
+  .btn-secondary { background: #f3f4f6; color: #374151; }
+  .features {
+    text-align: left;
+    margin: 24px 0;
+    padding: 16px;
+    background: #f9fafb;
+    border-radius: 12px;
+  }
+  .features h3 { font-size: 14px; color: #6b7280; margin-bottom: 10px; }
+  .features ul { list-style: none; }
+  .features li {
+    font-size: 14px; color: #374151; padding: 4px 0; padding-left: 20px; position: relative;
+  }
+  .features li::before { content: "✓"; position: absolute; left: 0; color: #10b981; font-weight: bold; }
+  .notice {
+    background: #fef3c7;
+    border-left: 4px solid #f59e0b;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    color: #92400e;
+    text-align: left;
+    margin-bottom: 16px;
+    line-height: 1.6;
+  }
+  .footer { margin-top: 20px; font-size: 12px; color: #9ca3af; }
+  .footer a { color: #6366f1; text-decoration: none; }
+  .changelog {
+    text-align: left;
+    margin: 16px 0;
+    padding: 16px;
+    background: #f9fafb;
+    border-radius: 12px;
+    font-size: 13px;
+    color: #4b5563;
+    line-height: 1.7;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  .changelog h3 { font-size: 14px; color: #6b7280; margin-bottom: 10px; }
+  .changelog b { color: #374151; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">💳</div>
+  <h1>卡包应用</h1>
+  <p class="subtitle">安全管理你的银行卡、身份证、会员卡</p>
+  <div class="version-tag" id="versionTag">v1.4.1 · 最新版</div>
+
+  <a class="btn btn-primary" id="downloadPrimary" href="apk/cardwallet-latest.apk">⬇️ 下载 APK（v1.4.1）</a>
+  <a class="btn btn-secondary" id="downloadBackup" href="https://cdn.jsdelivr.net/gh/zhongda-st/cardwallet-release@main/apk/cardwallet-latest.apk">🪞 备用下载（jsDelivr CDN）</a>
+
+  <div class="features">
+    <h3>主要功能</h3>
+    <ul>
+      <li>多种卡片类型管理（银行卡、信用卡、身份证、会员卡等）</li>
+      <li>拍照 OCR 识别，自动录入卡片信息</li>
+      <li>数据加密存储，保护隐私安全</li>
+      <li>到期提醒，及时续费换证</li>
+      <li>PDF 导出，方便备份打印</li>
+      <li>手动排序、置顶、搜索</li>
+    </ul>
+  </div>
+
+  <div class="changelog" id="changelogBox">
+    <h3>更新日志</h3>
+    <div id="changelogContent">加载中...</div>
+  </div>
+
+  <div class="notice">
+    ⚠️ <b>安装说明：</b><br>
+    1. 下载 APK 文件后点击安装<br>
+    2. 如提示「未知来源」，请在系统设置中允许安装<br>
+    3. 安装完成后即可使用<br>
+    4. 首次使用请阅读并同意隐私政策
+  </div>
+
+  <div class="footer">
+    问题反馈：<a href="mailto:sunt.flow@gmail.com">sunt.flow@gmail.com</a>
+  </div>
+</div>
+
+<script>
+// 异步加载 CHANGELOG，展示最新 3 个版本
+(async function() {
+  try {
+    const res = await fetch('CHANGELOG.md');
+    if (!res.ok) { document.getElementById('changelogContent').textContent = '暂无'; return; }
+    const text = await res.text();
+    // 取前 3 个版本块
+    const blocks = text.split(/^---$/m).filter(s => /##\s+v/.test(s)).slice(0, 3);
+    let html = '';
+    for (const blk of blocks) {
+      const vm = blk.match(/##\s+v(\d+\.\d+\.\d+)\s*[—-]?\s*(\d{4}-\d{2}-\d{2})?/);
+      if (!vm) continue;
+      const ver = vm[1], date = vm[2] || '';
+      const bullets = (blk.match(/^\s*[•·\-\*]\s+.+$/gm) || []).slice(0, 4).map(s => s.replace(/^\s*[•·\-\*]\s+/, '').trim());
+      html += `<b>v${ver}</b>${date ? ' · ' + date : ''}<br>`;
+      for (const b of bullets) html += `&nbsp;&nbsp;• ${b.replace(/\*\*/g, '')}<br>`;
+      html += '<br>';
+    }
+    document.getElementById('changelogContent').innerHTML = html || '暂无';
+  } catch (e) {
+    document.getElementById('changelogContent').textContent = '加载失败';
+  }
+})();
+</script>
+</body>
+</html>
