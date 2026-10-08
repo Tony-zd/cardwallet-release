@@ -4,6 +4,22 @@
 
 ---
 
+## v1.4.5 — 2026-10-08
+
+### 🔧 缓存修复（覆盖安装生效）
+
+1. **WebView 禁用缓存**：MainActivity 设置 `LOAD_NO_CACHE` + 启动时 `clearCache(true)` + ServiceWorkerController 禁用缓存
+2. **Service Worker 改 network-first**：移除 app.js/styles.css 预缓存，所有同源请求网络优先（本地资源必定成功），彻底避免旧代码缓存
+3. **index.html 加 no-cache meta**：Cache-Control/Pragma/Expires 三重禁用
+4. **缓存破坏版本号**：app.js/styles.css 查询串更新为 `?v=1.4.5`
+
+### 🔧 下载入口切换
+
+1. **下载主入口改为 GitHub Pages**：Gitee Pages 已下线，App 内分享和检查更新下载按钮均指向 `https://tony-zd.github.io/cardwallet-release/`
+2. **下载页 PC/移动响应式**：PC 端双栏布局（左品牌介绍+右下载卡），移动端单栏
+
+---
+
 ## v1.4.4 — 2026-10-08
 
 ### 🎨 UI 优化
