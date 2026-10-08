@@ -4,6 +4,29 @@
 
 ---
 
+## v1.4.2 — 2026-10-08
+
+### 🔧 架构调整
+
+1. **代码与发布产物分离**：新建公开仓库 `cardwallet-release`（Gitee + GitHub），专用于 APK 发布，与私有代码仓分离
+2. **检查更新改用 jsDelivr CDN 直连公开仓**：撤销 v1.4.1 的云函数代理方案（不再依赖 CloudBase + Gitee token）
+3. **付款码图片改用 jsDelivr CDN**：从公开仓拉取，App 内购买激活码弹窗可正常显示
+4. **下载页改用公开仓 Pages**：`https://zhongda-st.gitee.io/cardwallet-release/` 和 `https://tony-zd.github.io/cardwallet-release/`
+
+### 🐛 修复
+
+- 修复检查更新失败：原方案 Gitee raw URL 因仓库私有 + 访问限制返回 403
+
+### 📦 公开仓结构
+
+- `apk/cardwallet-latest.apk` 最新版
+- `apk/cardwallet-vX.Y.Z.apk` 历史版本
+- `CHANGELOG.md` 版本日志（App 检查更新拉取源）
+- `index.html` 下载引导页
+- `pay-qrcode.png` 付款码
+
+---
+
 ## v1.4.1 — 2026-10-08
 
 ### 🐛 修复
