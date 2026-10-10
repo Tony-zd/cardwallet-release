@@ -3,126 +3,148 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CardWallet Redis 可视化管理</title>
+<title>CardWallet Redis 数据管理台</title>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: -apple-system, 'Segoe UI', Roboto, sans-serif; background: #0f1117; color: #e0e0e0; min-height: 100vh; }
-  
-  /* 顶部栏 */
-  .topbar { background: #1a1d29; padding: 16px 24px; display: flex; align-items: center; gap: 16px; border-bottom: 1px solid #2a2d3a; position: sticky; top: 0; z-index: 100; }
-  .topbar h1 { font-size: 18px; color: #4fc3f7; white-space: nowrap; }
-  .topbar .config-btn { margin-left: auto; padding: 8px 16px; background: #2a2d3a; color: #e0e0e0; border: 1px solid #3a3d4a; border-radius: 6px; cursor: pointer; font-size: 13px; }
-  .topbar .config-btn:hover { background: #353846; }
-  .topbar .status { font-size: 12px; color: #888; }
-  .topbar .status.ok { color: #4caf50; }
-  .topbar .status.err { color: #f44336; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, 'Segoe UI', Roboto, sans-serif; background: #0f1117; color: #e0e0e0; min-height: 100vh; }
 
-  /* 配置弹窗 */
-  .modal-mask { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 200; }
-  .modal-mask.hidden { display: none; }
-  .modal { background: #1a1d29; border-radius: 12px; padding: 24px; width: 460px; max-width: 90vw; border: 1px solid #2a2d3a; }
-  .modal h2 { font-size: 16px; margin-bottom: 16px; color: #4fc3f7; }
-  .modal label { display: block; font-size: 12px; color: #888; margin: 12px 0 4px; }
-  .modal input { width: 100%; padding: 10px 12px; background: #0f1117; border: 1px solid #2a2d3a; border-radius: 6px; color: #e0e0e0; font-size: 13px; font-family: monospace; }
-  .modal input:focus { outline: none; border-color: #4fc3f7; }
-  .modal .btns { display: flex; gap: 8px; margin-top: 20px; justify-content: flex-end; }
-  .modal .btn { padding: 8px 20px; border-radius: 6px; cursor: pointer; font-size: 13px; border: none; }
-  .modal .btn-primary { background: #4fc3f7; color: #0f1117; }
-  .modal .btn-ghost { background: #2a2d3a; color: #e0e0e0; border: 1px solid #3a3d4a; }
+/* 顶部栏 */
+.topbar { background: #1a1d29; padding: 14px 24px; display: flex; align-items: center; gap: 16px; border-bottom: 1px solid #2a2d3a; position: sticky; top: 0; z-index: 100; }
+.topbar h1 { font-size: 17px; color: #4fc3f7; white-space: nowrap; }
+.topbar .status { font-size: 12px; color: #888; }
+.topbar .status.ok { color: #4caf50; }
+.topbar .status.err { color: #f44336; }
+.topbar .spacer { flex: 1; }
+.topbar button { padding: 7px 16px; background: #2a2d3a; color: #e0e0e0; border: 1px solid #3a3d4a; border-radius: 6px; cursor: pointer; font-size: 13px; }
+.topbar button:hover { background: #353846; }
+.topbar button.primary { background: #4fc3f7; color: #0f1117; border-color: #4fc3f7; }
 
-  /* 主布局 */
-  .main { display: flex; gap: 1px; background: #2a2d3a; min-height: calc(100vh - 57px); }
-  
-  /* 侧边栏 */
-  .sidebar { width: 280px; background: #131620; padding: 16px; overflow-y: auto; }
-  .sidebar h3 { font-size: 12px; color: #888; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 1px; }
-  .key-list { list-style: none; }
-  .key-list li { padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; font-family: monospace; display: flex; align-items: center; gap: 8px; }
-  .key-list li:hover { background: #1a1d29; }
-  .key-list li.active { background: #1a1d29; color: #4fc3f7; }
-  .key-type { font-size: 10px; padding: 2px 6px; border-radius: 3px; background: #2a2d3a; color: #888; }
-  .key-type.string { color: #4caf50; }
-  .key-type.list { color: #ff9800; }
-  .key-type.hash { color: #e91e63; }
-  .sidebar .refresh-btn { width: 100%; padding: 8px; background: #2a2d3a; color: #e0e0e0; border: 1px solid #3a3d4a; border-radius: 6px; cursor: pointer; font-size: 12px; margin-bottom: 12px; }
-  .sidebar .refresh-btn:hover { background: #353846; }
-  .scan-input { width: 100%; padding: 8px 10px; background: #0f1117; border: 1px solid #2a2d3a; border-radius: 6px; color: #e0e0e0; font-size: 12px; margin-bottom: 12px; }
-  .scan-input:focus { outline: none; border-color: #4fc3f7; }
+/* 主布局 */
+.main { display: flex; gap: 1px; background: #2a2d3a; height: calc(100vh - 51px); }
 
-  /* 内容区 */
-  .content { flex: 1; background: #0f1117; padding: 24px; overflow-y: auto; }
-  .content h2 { font-size: 16px; margin-bottom: 16px; color: #4fc3f7; font-family: monospace; word-break: break-all; }
-  
-  /* 数据卡片 */
-  .data-card { background: #1a1d29; border: 1px solid #2a2d3a; border-radius: 8px; padding: 16px; margin-bottom: 12px; }
-  .data-card .label { font-size: 12px; color: #888; margin-bottom: 4px; }
-  .data-card .value { font-size: 14px; color: #e0e0e0; font-family: monospace; word-break: break-all; white-space: pre-wrap; }
-  .data-card .value.json { background: #0f1117; padding: 12px; border-radius: 6px; border: 1px solid #2a2d3a; max-height: 400px; overflow-y: auto; }
-  
-  /* 操作按钮 */
-  .actions { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
-  .actions button { padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 12px; border: 1px solid #3a3d4a; background: #2a2d3a; color: #e0e0e0; }
-  .actions button:hover { background: #353846; }
-  .actions button.danger { border-color: #f44336; color: #f44336; }
-  .actions button.danger:hover { background: #3a1515; }
-  .actions button.primary { background: #4fc3f7; color: #0f1117; border-color: #4fc3f7; }
+/* 侧边栏 */
+.sidebar { width: 300px; background: #131620; display: flex; flex-direction: column; }
+.sidebar .search-bar { padding: 12px; border-bottom: 1px solid #1f2230; }
+.sidebar .search-bar input { width: 100%; padding: 8px 12px; background: #0f1117; border: 1px solid #2a2d3a; border-radius: 6px; color: #e0e0e0; font-size: 13px; }
+.sidebar .search-bar input:focus { outline: none; border-color: #4fc3f7; }
+.sidebar .toolbar { padding: 0 12px 12px; display: flex; gap: 6px; }
+.sidebar .toolbar button { flex: 1; padding: 7px; background: #2a2d3a; color: #e0e0e0; border: 1px solid #3a3d4a; border-radius: 6px; cursor: pointer; font-size: 12px; }
+.sidebar .toolbar button:hover { background: #353846; }
+.sidebar .toolbar button.add { background: #2e7d32; border-color: #2e7d32; color: #fff; }
+.sidebar .toolbar button.add:hover { background: #388e3c; }
+.sidebar .key-list { flex: 1; overflow-y: auto; padding: 0 8px 8px; }
+.sidebar .key-group-title { font-size: 11px; color: #666; text-transform: uppercase; padding: 8px 4px 4px; letter-spacing: 0.5px; }
+.sidebar .key-item { padding: 8px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; font-family: 'SF Mono', Consolas, monospace; display: flex; align-items: center; gap: 8px; transition: background 0.15s; }
+.sidebar .key-item:hover { background: #1a1d29; }
+.sidebar .key-item.active { background: #1a1d29; color: #4fc3f7; }
+.sidebar .key-item .type-badge { font-size: 10px; padding: 2px 6px; border-radius: 3px; background: #2a2d3a; color: #888; white-space: nowrap; }
+.sidebar .key-item .type-badge.string { color: #4caf50; }
+.sidebar .key-item .type-badge.list { color: #ff9800; }
+.sidebar .key-item .type-badge.hash { color: #e91e63; }
+.sidebar .key-item .type-badge.set { color: #9c27b0; }
+.sidebar .key-item .type-badge.zset { color: #00bcd4; }
+.sidebar .key-item .key-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sidebar .empty { text-align: center; padding: 40px 20px; color: #666; font-size: 13px; }
 
-  /* 统计卡片 */
-  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 20px; }
-  .stat-card { background: #1a1d29; border: 1px solid #2a2d3a; border-radius: 8px; padding: 16px; }
-  .stat-card .num { font-size: 28px; font-weight: 700; color: #4fc3f7; }
-  .stat-card .name { font-size: 12px; color: #888; margin-top: 4px; }
+/* 内容区 */
+.content { flex: 1; background: #0f1117; overflow-y: auto; padding: 24px; }
+.content h2 { font-size: 18px; margin-bottom: 4px; color: #4fc3f7; font-family: 'SF Mono', Consolas, monospace; word-break: break-all; }
+.content .meta { font-size: 12px; color: #888; margin-bottom: 20px; }
+.content .actions { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+.content .actions button { padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 13px; border: 1px solid #3a3d4a; background: #2a2d3a; color: #e0e0e0; }
+.content .actions button:hover { background: #353846; }
+.content .actions button.danger { border-color: #f44336; color: #f44336; }
+.content .actions button.danger:hover { background: #3a1515; }
+.content .actions button.primary { background: #4fc3f7; color: #0f1117; border-color: #4fc3f7; }
 
-  /* Toast */
-  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #1a1d29; border: 1px solid #3a3d4a; padding: 12px 24px; border-radius: 8px; font-size: 13px; z-index: 300; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
-  .toast.show { opacity: 1; }
-  .toast.success { border-color: #4caf50; color: #4caf50; }
-  .toast.error { border-color: #f44336; color: #f44336; }
+/* 数据卡片 */
+.data-card { background: #1a1d29; border: 1px solid #2a2d3a; border-radius: 8px; padding: 16px; margin-bottom: 12px; }
+.data-card .label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+.data-card .value { font-size: 14px; color: #e0e0e0; font-family: 'SF Mono', Consolas, monospace; word-break: break-all; white-space: pre-wrap; }
+.data-card .value.json { background: #0f1117; padding: 14px; border-radius: 6px; border: 1px solid #2a2d3a; max-height: 500px; overflow-y: auto; }
 
-  /* 空状态 */
-  .empty { text-align: center; padding: 60px 20px; color: #666; }
-  .empty p { font-size: 14px; margin-top: 8px; }
+/* 表格 */
+.data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.data-table th, .data-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #2a2d3a; }
+.data-table th { color: #888; font-weight: normal; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+.data-table td { font-family: 'SF Mono', Consolas, monospace; word-break: break-all; }
+.data-table tr:hover { background: #1a1d29; }
+.data-table .del-btn { padding: 4px 10px; font-size: 11px; background: #3a1515; color: #f44336; border: 1px solid #f44336; border-radius: 4px; cursor: pointer; white-space: nowrap; }
+.data-table .del-btn:hover { background: #4a1a1a; }
 
-  /* 加载 */
-  .loading { text-align: center; padding: 40px; color: #666; font-size: 13px; }
+/* 编辑器 */
+.editor { width: 100%; min-height: 120px; background: #0f1117; border: 1px solid #2a2d3a; border-radius: 6px; color: #e0e0e0; padding: 12px; font-family: 'SF Mono', Consolas, monospace; font-size: 13px; resize: vertical; }
+.editor:focus { outline: none; border-color: #4fc3f7; }
+.editor.small { min-height: 36px; padding: 8px; }
 
-  /* 编辑器 */
-  .editor { width: 100%; min-height: 120px; background: #0f1117; border: 1px solid #2a2d3a; border-radius: 6px; color: #e0e0e0; padding: 12px; font-family: monospace; font-size: 13px; resize: vertical; }
-  .editor:focus { outline: none; border-color: #4fc3f7; }
+/* 表单 */
+.form-row { margin-bottom: 14px; }
+.form-row label { display: block; font-size: 12px; color: #888; margin-bottom: 6px; }
+.form-row input, .form-row select { width: 100%; padding: 9px 12px; background: #0f1117; border: 1px solid #2a2d3a; border-radius: 6px; color: #e0e0e0; font-size: 13px; font-family: 'SF Mono', Consolas, monospace; }
+.form-row input:focus, .form-row select:focus { outline: none; border-color: #4fc3f7; }
 
-  /* 列表项 */
-  .list-item { background: #1a1d29; border: 1px solid #2a2d3a; border-radius: 6px; padding: 12px; margin-bottom: 8px; display: flex; align-items: flex-start; gap: 12px; }
-  .list-item .idx { font-size: 11px; color: #666; min-width: 28px; padding-top: 2px; }
-  .list-item .val { flex: 1; font-family: monospace; font-size: 13px; word-break: break-all; white-space: pre-wrap; }
-  .list-item .del-btn { padding: 4px 8px; font-size: 11px; background: #3a1515; color: #f44336; border: 1px solid #f44336; border-radius: 4px; cursor: pointer; white-space: nowrap; }
+/* 模态框 */
+.modal-mask { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 200; }
+.modal-mask.hidden { display: none; }
+.modal { background: #1a1d29; border-radius: 12px; padding: 24px; width: 560px; max-width: 90vw; max-height: 85vh; overflow-y: auto; border: 1px solid #2a2d3a; }
+.modal h2 { font-size: 16px; margin-bottom: 16px; color: #4fc3f7; }
+.modal .btns { display: flex; gap: 8px; margin-top: 20px; justify-content: flex-end; }
+.modal .btn { padding: 8px 20px; border-radius: 6px; cursor: pointer; font-size: 13px; border: none; }
+.modal .btn-primary { background: #4fc3f7; color: #0f1117; }
+.modal .btn-ghost { background: #2a2d3a; color: #e0e0e0; border: 1px solid #3a3d4a; }
+.modal .btn-danger { background: #f44336; color: #fff; }
 
-  /* 响应式 */
-  @media (max-width: 768px) {
-    .main { flex-direction: column; }
-    .sidebar { width: 100%; max-height: 300px; }
-  }
+/* Toast */
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #1a1d29; border: 1px solid #3a3d4a; padding: 12px 24px; border-radius: 8px; font-size: 13px; z-index: 300; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+.toast.show { opacity: 1; }
+.toast.success { border-color: #4caf50; color: #4caf50; }
+.toast.error { border-color: #f44336; color: #f44336; }
+
+/* 空状态 */
+.empty-state { text-align: center; padding: 80px 20px; color: #666; }
+.empty-state .icon { font-size: 48px; margin-bottom: 16px; }
+.empty-state p { font-size: 14px; margin-bottom: 8px; }
+
+/* TTL 标签 */
+.ttl-tag { display: inline-block; padding: 2px 8px; background: #2a2d3a; border-radius: 4px; font-size: 11px; color: #888; }
+.ttl-tag.expiring { color: #ff9800; }
+.ttl-tag.permanent { color: #4caf50; }
+
+/* 滚动条 */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: #0f1117; }
+::-webkit-scrollbar-thumb { background: #2a2d3a; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #3a3d4a; }
+
+/* 确认弹窗 */
+.confirm-box { background: #1a1d29; border-radius: 12px; padding: 24px; width: 400px; max-width: 90vw; border: 1px solid #2a2d3a; }
+.confirm-box h3 { font-size: 16px; margin-bottom: 12px; color: #f44336; }
+.confirm-box p { font-size: 13px; color: #aaa; line-height: 1.6; margin-bottom: 20px; }
 </style>
 </head>
 <body>
 
 <div class="topbar">
-  <h1>💳 CardWallet Redis 管理台</h1>
+  <h1>🔴 Redis 数据管理台</h1>
   <span class="status" id="status">未连接</span>
-  <button class="config-btn" onclick="openConfig()">⚙ 配置</button>
+  <div class="spacer"></div>
+  <button onclick="refreshKeys()">🔄 刷新</button>
+  <button class="primary" onclick="openAddModal()">+ 新建 Key</button>
+  <button onclick="openConfig()">⚙ 配置</button>
 </div>
 
 <!-- 配置弹窗 -->
 <div class="modal-mask hidden" id="configModal">
   <div class="modal">
     <h2>Upstash Redis 连接配置</h2>
-    <label>REST URL</label>
-    <input type="text" id="cfgUrl" placeholder="https://xxx.upstash.io" />
-    <label>REST Token</label>
-    <input type="password" id="cfgToken" placeholder="AXxxxx..." />
-    <label>管理员密码（可选，用于云函数 API）</label>
-    <input type="password" id="cfgAdminPwd" placeholder="管理员密码" />
-    <label>云函数地址（可选，用于 admin API）</label>
-    <input type="text" id="cfgCloudUrl" placeholder="https://xxx.tcloudbase.com" />
+    <div class="form-row">
+      <label>REST URL</label>
+      <input type="text" id="cfgUrl" placeholder="https://xxx.upstash.io" />
+    </div>
+    <div class="form-row">
+      <label>REST Token</label>
+      <input type="password" id="cfgToken" placeholder="AXxxxx..." />
+    </div>
     <div class="btns">
       <button class="btn btn-ghost" onclick="closeConfig()">取消</button>
       <button class="btn btn-primary" onclick="saveConfig()">保存并连接</button>
@@ -130,22 +152,84 @@
   </div>
 </div>
 
+<!-- 新建 Key 弹窗 -->
+<div class="modal-mask hidden" id="addModal">
+  <div class="modal">
+    <h2 id="addModalTitle">新建 Key</h2>
+    <div class="form-row">
+      <label>Key 名称</label>
+      <input type="text" id="newKey" placeholder="例如: trial:abc123" />
+    </div>
+    <div class="form-row">
+      <label>数据类型</label>
+      <select id="newType" onchange="onTypeChange()">
+        <option value="string">String（字符串）</option>
+        <option value="list">List（列表）</option>
+        <option value="hash">Hash（哈希）</option>
+      </select>
+    </div>
+    <div id="stringFields">
+      <div class="form-row">
+        <label>值</label>
+        <textarea class="editor" id="newValue" placeholder="输入值..."></textarea>
+      </div>
+    </div>
+    <div id="listFields" style="display:none">
+      <div class="form-row">
+        <label>列表元素（每行一个）</label>
+        <textarea class="editor" id="newListValue" placeholder="每行一个元素"></textarea>
+      </div>
+    </div>
+    <div id="hashFields" style="display:none">
+      <div class="form-row">
+        <label>哈希字段（JSON 格式）</label>
+        <textarea class="editor" id="newHashValue" placeholder='{"field1":"value1","field2":"value2"}'></textarea>
+      </div>
+    </div>
+    <div class="form-row">
+      <label>过期时间（TTL，秒，0=永久）</label>
+      <input type="number" id="newTtl" value="0" min="0" />
+    </div>
+    <div class="btns">
+      <button class="btn btn-ghost" onclick="closeAddModal()">取消</button>
+      <button class="btn btn-primary" onclick="createKey()">创建</button>
+    </div>
+  </div>
+</div>
+
+<!-- 确认删除弹窗 -->
+<div class="modal-mask hidden" id="confirmModal">
+  <div class="confirm-box">
+    <h3>⚠️ 确认删除</h3>
+    <p id="confirmText">确定要删除这个 Key 吗？此操作不可撤销。</p>
+    <div class="btns" style="display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn btn-ghost" onclick="closeConfirm()">取消</button>
+      <button class="btn btn-danger" id="confirmBtn" onclick="doConfirm()">删除</button>
+    </div>
+  </div>
+</div>
+
 <div class="main">
   <!-- 侧边栏：Key 列表 -->
   <div class="sidebar">
-    <input type="text" class="scan-input" id="scanInput" placeholder="搜索 key（回车）" onkeydown="if(event.key==='Enter')scanKeys()" />
-    <button class="refresh-btn" onclick="scanKeys()">🔄 刷新 Key 列表</button>
-    <h3>Keys (<span id="keyCount">0</span>)</h3>
-    <ul class="key-list" id="keyList">
-      <li style="color:#666;cursor:default">请先配置连接</li>
-    </ul>
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="搜索 Key（回车）" onkeydown="if(event.key==='Enter')refreshKeys()" />
+    </div>
+    <div class="toolbar">
+      <button class="add" onclick="openAddModal()">+ 新建</button>
+      <button onclick="refreshKeys()">🔄 刷新</button>
+    </div>
+    <div class="key-list" id="keyList">
+      <div class="empty">点击「配置」连接 Redis</div>
+    </div>
   </div>
 
   <!-- 内容区 -->
   <div class="content" id="content">
-    <div class="empty">
-      <p style="font-size:32px">🗄️</p>
-      <p>选择左侧 Key 查看数据，或点击「⚙ 配置」连接 Upstash Redis</p>
+    <div class="empty-state">
+      <div class="icon">📊</div>
+      <p>选择左侧 Key 查看详情</p>
+      <p style="color:#444;font-size:12px">支持 String / List / Hash 的增删改查</p>
     </div>
   </div>
 </div>
@@ -153,19 +237,20 @@
 <div class="toast" id="toast"></div>
 
 <script>
-let cfg = { url: '', token: '', adminPwd: '', cloudUrl: '' };
-let knownKeys = [];
+let cfg = { url: '', token: '' };
+let currentKey = null;
+let confirmCallback = null;
+let keyCache = [];
 
-// === 初始化 ===
-  const saved = localStorage.getItem('cardwallet.redisAdmin');
+// ============ 初始化 ============
+(function init() {
+  const saved = localStorage.getItem('cardwallet.redisAdmin.v2');
   if (saved) {
     cfg = JSON.parse(saved);
     if (cfg.url && cfg.token) {
       document.getElementById('cfgUrl').value = cfg.url;
       document.getElementById('cfgToken').value = cfg.token;
-      document.getElementById('cfgAdminPwd').value = cfg.adminPwd || '';
-      document.getElementById('cfgCloudUrl').value = cfg.cloudUrl || '';
-      scanKeys();
+      refreshKeys();
     } else {
       openConfig();
     }
@@ -174,30 +259,25 @@ let knownKeys = [];
   }
 })();
 
-// === 配置 ===
-function openConfig() {
-  document.getElementById('configModal').classList.remove('hidden');
-}
-function closeConfig() {
-  document.getElementById('configModal').classList.add('hidden');
-}
+// ============ 配置 ============
+function openConfig() { document.getElementById('configModal').classList.remove('hidden'); }
+function closeConfig() { document.getElementById('configModal').classList.add('hidden'); }
 function saveConfig() {
   cfg.url = document.getElementById('cfgUrl').value.trim().replace(/\/$/, '');
   cfg.token = document.getElementById('cfgToken').value.trim();
-  cfg.adminPwd = document.getElementById('cfgAdminPwd').value.trim();
-  cfg.cloudUrl = document.getElementById('cfgCloudUrl').value.trim().replace(/\/$/, '');
   if (!cfg.url || !cfg.token) { toast('请填写 URL 和 Token', 'error'); return; }
-  localStorage.setItem('cardwallet.redisAdmin', JSON.stringify(cfg));
+  localStorage.setItem('cardwallet.redisAdmin.v2', JSON.stringify(cfg));
   closeConfig();
-  scanKeys();
+  refreshKeys();
 }
 
-// === Upstash Redis REST API ===
+// ============ Redis REST API ============
 async function redisCmd(path, method, body) {
   const url = cfg.url + path;
   const opts = { method: method || 'GET', headers: { Authorization: 'Bearer ' + cfg.token } };
   if (body !== undefined) {
     opts.body = typeof body === 'string' ? body : JSON.stringify(body);
+    opts.headers['Content-Type'] = 'application/json';
   }
   const res = await fetch(url, opts);
   const json = await res.json();
@@ -205,211 +285,313 @@ async function redisCmd(path, method, body) {
   return json.result;
 }
 
-// === SCAN keys ===
-async function scanKeys() {
+// ============ Key 列表 ============
+async function refreshKeys() {
   if (!cfg.url) { openConfig(); return; }
-  const pattern = document.getElementById('scanInput').value.trim() || '*';
+  const pattern = document.getElementById('searchInput').value.trim() || '*';
   const statusEl = document.getElementById('status');
-  statusEl.className = 'status';
   statusEl.textContent = '扫描中...';
+  statusEl.className = 'status';
 
   const listEl = document.getElementById('keyList');
-  listEl.innerHTML = '<li style="color:#666;cursor:default">扫描中...</li>';
+  listEl.innerHTML = '<div class="empty">扫描中...</div>';
 
   try {
-    // 使用 SCAN 0 COUNT 1000 MATCH pattern
+    // 用 SCAN 0 COUNT 1000 MATCH pattern
     const result = await redisCmd('/scan/0/match/' + encodeURIComponent(pattern) + '/count/1000');
     let keys = [];
-    if (Array.isArray(result)) {
-      // Upstash 返回 [cursor, [keys]]
-      keys = Array.isArray(result[1]) ? result[1] : result;
+    if (Array.isArray(result) && Array.isArray(result[1])) {
+      keys = result[1];
     } else if (typeof result === 'string') {
       keys = result.split('\n').filter(Boolean);
+    } else if (Array.isArray(result)) {
+      keys = result;
     }
     keys.sort();
-    knownKeys = keys;
-    document.getElementById('keyCount').textContent = keys.length;
-    statusEl.className = 'status ok';
+    keyCache = keys;
     statusEl.textContent = '已连接 · ' + keys.length + ' keys';
-
-    if (keys.length === 0) {
-      listEl.innerHTML = '<li style="color:#666;cursor:default">无匹配 Key</li>';
-      return;
-    }
-
-    listEl.innerHTML = keys.map(k => {
-      const type = guessKeyType(k);
-      return `<li onclick="selectKey('${escapeHtml(k)}')" data-key="${escapeHtml(k)}">
-        <span class="key-type ${type}">${type}</span>
-        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHtml(k)}</span>
-      </li>`;
-    }).join('');
+    statusEl.className = 'status ok';
+    renderKeyList(keys);
   } catch (e) {
-    statusEl.className = 'status err';
     statusEl.textContent = '连接失败';
-    listEl.innerHTML = '<li style="color:#f44336;cursor:default">连接失败: ' + escapeHtml(e.message) + '</li>';
+    statusEl.className = 'status err';
+    listEl.innerHTML = '<div class="empty" style="color:#f44336">连接失败<br><span style="font-size:11px">' + escapeHtml(e.message) + '</span></div>';
   }
 }
 
-function guessKeyType(key) {
-  if (key.startsWith('payment:') && key.endsWith(':list')) return 'list';
-  if (key.startsWith('payment:')) return 'string';
-  if (key.startsWith('trial:')) return 'string';
-  if (key.startsWith('health:')) return 'string';
+function renderKeyList(keys) {
+  const listEl = document.getElementById('keyList');
+  if (keys.length === 0) {
+    listEl.innerHTML = '<div class="empty">无匹配 Key</div>';
+    return;
+  }
+  // 按前缀分组
+  const groups = {};
+  for (const k of keys) {
+    const prefix = k.split(':')[0] || 'other';
+    if (!groups[prefix]) groups[prefix] = [];
+    groups[prefix].push(k);
+  }
+  let html = '';
+  for (const prefix in groups) {
+    html += '<div class="key-group-title">' + escapeHtml(prefix) + ' (' + groups[prefix].length + ')</div>';
+    for (const k of groups[prefix]) {
+      const type = guessType(k);
+      html += '<div class="key-item' + (k === currentKey ? ' active' : '') + '" onclick="selectKey(\'' + escapeJs(k) + '\')">'
+        + '<span class="type-badge ' + type + '">' + type + '</span>'
+        + '<span class="key-name" title="' + escapeHtml(k) + '">' + escapeHtml(k) + '</span>'
+        + '</div>';
+    }
+  }
+  listEl.innerHTML = html;
+}
+
+function guessType(key) {
+  if (key.endsWith(':list')) return 'list';
   return 'string';
 }
 
-// === 选中 Key 查看详情 ===
+// ============ 选中 Key ============
 async function selectKey(key) {
-  document.querySelectorAll('.key-list li').forEach(li => li.classList.remove('active'));
-  const el = document.querySelector(`[data-key="${CSS.escape(key)}"]`);
-  if (el) el.classList.add('active');
-
+  currentKey = key;
+  renderKeyList(keyCache);
   const content = document.getElementById('content');
-  content.innerHTML = '<div class="loading">加载中...</div>';
+  content.innerHTML = '<div class="loading" style="text-align:center;padding:40px;color:#666">加载中...</div>';
 
   try {
-    // 尝试 TYPE 命令
-    let type = 'string';
-    try { type = await redisCmd('/type/' + key); } catch(e) {}
-
-    if (type === 'list') {
-      await renderList(key, content);
-    } else {
-      await renderString(key, content);
-    }
+    const type = await redisCmd('/type/' + encodeURIComponent(key));
+    if (type === 'list') await renderList(key, content);
+    else if (type === 'hash') await renderHash(key, content);
+    else await renderString(key, content);
   } catch (e) {
-    content.innerHTML = `<div class="empty"><p style="color:#f44336">❌ 加载失败</p><p>${escapeHtml(e.message)}</p></div>`;
+    content.innerHTML = '<div class="empty-state"><div class="icon">❌</div><p style="color:#f44336">加载失败</p><p style="font-size:12px">' + escapeHtml(e.message) + '</p></div>';
   }
 }
 
-// === 渲染 string 类型 ===
+// ============ String ============
 async function renderString(key, content) {
-  const val = await redisCmd('/get/' + key);
-  let parsed = null;
-  let isJson = false;
-  try {
-    parsed = JSON.parse(val);
-    isJson = typeof parsed === 'object' && parsed !== null;
-  } catch(e) {}
+  const val = await redisCmd('/get/' + encodeURIComponent(key));
+  const ttl = await redisCmd('/ttl/' + encodeURIComponent(key));
+  let parsed = null, isJson = false;
+  try { parsed = JSON.parse(val); isJson = typeof parsed === 'object' && parsed !== null; } catch(e) {}
 
-  content.innerHTML = `
-    <h2>${escapeHtml(key)}</h2>
-    <div class="actions">
-      <button class="primary" onclick="editValue('${escapeHtml(key)}')">✏️ 编辑</button>
-      <button onclick="selectKey('${escapeHtml(key)}')">🔄 刷新</button>
-      <button class="danger" onclick="delKey('${escapeHtml(key)}')">🗑️ 删除</button>
-    </div>
-    <div class="data-card">
-      <div class="label">类型</div>
-      <div class="value">string</div>
-    </div>
-    <div class="data-card">
-      <div class="label">原始值</div>
-      <div class="value">${escapeHtml(val === null ? '(nil)' : String(val))}</div>
-    </div>
-    ${isJson ? `
-    <div class="data-card">
-      <div class="label">JSON 格式化</div>
-      <div class="value json">${escapeHtml(JSON.stringify(parsed, null, 2))}</div>
-    </div>` : ''}
-  `;
+  content.innerHTML =
+    '<h2>' + escapeHtml(key) + '</h2>' +
+    '<div class="meta">类型: string · TTL: ' + ttlTag(ttl) + '</div>' +
+    '<div class="actions">' +
+      '<button class="primary" onclick="editString(\'' + escapeJs(key) + '\')">✏️ 编辑</button>' +
+      '<button onclick="selectKey(\'' + escapeJs(key) + '\')">🔄 刷新</button>' +
+      '<button class="danger" onclick="deleteKey(\'' + escapeJs(key) + '\')">🗑️ 删除</button>' +
+    '</div>' +
+    '<div class="data-card"><div class="label">原始值</div><div class="value">' + escapeHtml(val === null ? '(nil)' : String(val)) + '</div></div>' +
+    (isJson ? '<div class="data-card"><div class="label">JSON 格式化</div><div class="value json">' + escapeHtml(JSON.stringify(parsed, null, 2)) + '</div></div>' : '');
 }
 
-// === 渲染 list 类型 ===
-async function renderList(key, content) {
-  const val = await redisCmd('/lrange/' + key + '/0/-1');
-  const items = Array.isArray(val) ? val : [];
-
-  content.innerHTML = `
-    <h2>${escapeHtml(key)}</h2>
-    <div class="actions">
-      <button onclick="selectKey('${escapeHtml(key)}')">🔄 刷新</button>
-      <button class="danger" onclick="delKey('${escapeHtml(key)}')">🗑️ 删除整个 List</button>
-    </div>
-    <div class="data-card">
-      <div class="label">类型 / 长度</div>
-      <div class="value">list · ${items.length} 项</div>
-    </div>
-    <div style="margin-top:12px">
-      ${items.length === 0 ? '<div class="empty"><p>空列表</p></div>' : items.map((item, i) => {
-        let parsed = null;
-        try { parsed = JSON.parse(item); } catch(e) {}
-        return `<div class="list-item">
-          <span class="idx">${i}</span>
-          <div class="val">${escapeHtml(item)}</div>
-          ${parsed ? `<button class="del-btn" onclick='showJson(${JSON.stringify(JSON.stringify(parsed, null, 2))})'>📄</button>` : ''}
-        </div>`;
-      }).join('')}
-    </div>
-  `;
-}
-
-// === 编辑值 ===
-function editValue(key) {
+function editString(key) {
   const content = document.getElementById('content');
-  const current = content.querySelector('.data-card .value');
-  const rawVal = current ? current.textContent : '';
-
-  content.innerHTML = `
-    <h2>编辑: ${escapeHtml(key)}</h2>
-    <div class="data-card">
-      <div class="label">新值</div>
-      <textarea class="editor" id="editArea">${escapeHtml(rawVal)}</textarea>
-    </div>
-    <div class="actions">
-      <button class="primary" onclick="saveValue('${escapeHtml(key)}')">💾 保存</button>
-      <button onclick="selectKey('${escapeHtml(key)}')">取消</button>
-    </div>
-  `;
+  const curVal = content.querySelector('.data-card .value')?.textContent || '';
+  content.innerHTML =
+    '<h2>编辑: ' + escapeHtml(key) + '</h2>' +
+    '<div class="meta">类型: string</div>' +
+    '<div class="data-card"><div class="label">新值</div><textarea class="editor" id="editArea">' + escapeHtml(curVal) + '</textarea></div>' +
+    '<div class="actions">' +
+      '<button class="primary" onclick="saveString(\'' + escapeJs(key) + '\')">💾 保存</button>' +
+      '<button onclick="selectKey(\'' + escapeJs(key) + '\')">取消</button>' +
+    '</div>';
 }
 
-async function saveValue(key) {
+async function saveString(key) {
   const val = document.getElementById('editArea').value;
   try {
-    await redisCmd('/set/' + key, 'POST', val);
+    await redisCmd('/set/' + encodeURIComponent(key), 'POST', val);
     toast('保存成功', 'success');
     selectKey(key);
-  } catch(e) {
-    toast('保存失败: ' + e.message, 'error');
-  }
+  } catch(e) { toast('保存失败: ' + e.message, 'error'); }
 }
 
-// === 删除 Key ===
-async function delKey(key) {
-  if (!confirm('确认删除 Key: ' + key + ' ?')) return;
+// ============ List ============
+async function renderList(key, content) {
+  const val = await redisCmd('/lrange/' + encodeURIComponent(key) + '/0/-1');
+  const len = await redisCmd('/llen/' + encodeURIComponent(key));
+  const ttl = await redisCmd('/ttl/' + encodeURIComponent(key));
+  const items = Array.isArray(val) ? val : [];
+
+  let rows = '';
+  items.forEach((item, i) => {
+    rows += '<tr><td style="color:#666;width:50px">' + i + '</td><td>' + escapeHtml(item) + '</td>'
+      + '<td style="width:80px"><button class="del-btn" onclick="lremItem(\'' + escapeJs(key) + '\', ' + i + ')">删除</button></td></tr>';
+  });
+
+  content.innerHTML =
+    '<h2>' + escapeHtml(key) + '</h2>' +
+    '<div class="meta">类型: list · 长度: ' + len + ' · TTL: ' + ttlTag(ttl) + '</div>' +
+    '<div class="actions">' +
+      '<button class="primary" onclick="lpushItem(\'' + escapeJs(key) + '\')">+ 左侧添加</button>' +
+      '<button class="primary" onclick="rpushItem(\'' + escapeJs(key) + '\')">+ 右侧添加</button>' +
+      '<button onclick="selectKey(\'' + escapeJs(key) + '\')">🔄 刷新</button>' +
+      '<button class="danger" onclick="deleteKey(\'' + escapeJs(key) + '\')">🗑️ 删除整个 List</button>' +
+    '</div>' +
+    '<div class="data-card" style="padding:0"><table class="data-table"><thead><tr><th>#</th><th>值</th><th>操作</th></tr></thead><tbody>' +
+    (rows || '<tr><td colspan="3" style="text-align:center;color:#666;padding:20px">空列表</td></tr>') +
+    '</tbody></table></div>';
+}
+
+async function lpushItem(key) {
+  const v = prompt('输入要添加的元素:');
+  if (v === null) return;
+  try { await redisCmd('/lpush/' + encodeURIComponent(key), 'POST', v); toast('添加成功', 'success'); selectKey(key); }
+  catch(e) { toast('失败: ' + e.message, 'error'); }
+}
+
+async function rpushItem(key) {
+  const v = prompt('输入要添加的元素:');
+  if (v === null) return;
+  try { await redisCmd('/rpush/' + encodeURIComponent(key), 'POST', v); toast('添加成功', 'success'); selectKey(key); }
+  catch(e) { toast('失败: ' + e.message, 'error'); }
+}
+
+async function lremItem(key, idx) {
   try {
-    await redisCmd('/del/' + key, 'POST');
+    const items = await redisCmd('/lrange/' + encodeURIComponent(key) + '/0/-1');
+    const val = items[idx];
+    if (val === undefined) return;
+    await redisCmd('/lrem/' + encodeURIComponent(key) + '/1', 'POST', val);
     toast('删除成功', 'success');
-    scanKeys();
-    document.getElementById('content').innerHTML = '<div class="empty"><p style="font-size:32px">🗑️</p><p>已删除</p></div>';
-  } catch(e) {
-    toast('删除失败: ' + e.message, 'error');
+    selectKey(key);
+  } catch(e) { toast('失败: ' + e.message, 'error'); }
+}
+
+// ============ Hash ============
+async function renderHash(key, content) {
+  const val = await redisCmd('/hgetall/' + encodeURIComponent(key));
+  const ttl = await redisCmd('/ttl/' + encodeURIComponent(key));
+  // hgetall 返回 [field, value, field, value, ...]
+  const fields = {};
+  if (Array.isArray(val)) {
+    for (let i = 0; i < val.length; i += 2) {
+      fields[val[i]] = val[i+1];
+    }
   }
+  const fkeys = Object.keys(fields);
+
+  let rows = '';
+  fkeys.forEach(f => {
+    rows += '<tr><td style="color:#4fc3f7">' + escapeHtml(f) + '</td><td>' + escapeHtml(fields[f]) + '</td>'
+      + '<td style="width:80px"><button class="del-btn" onclick="hdelField(\'' + escapeJs(key) + '\', \'' + escapeJs(f) + '\')">删除</button></td></tr>';
+  });
+
+  content.innerHTML =
+    '<h2>' + escapeHtml(key) + '</h2>' +
+    '<div class="meta">类型: hash · 字段数: ' + fkeys.length + ' · TTL: ' + ttlTag(ttl) + '</div>' +
+    '<div class="actions">' +
+      '<button class="primary" onclick="hsetField(\'' + escapeJs(key) + '\')">+ 添加字段</button>' +
+      '<button onclick="selectKey(\'' + escapeJs(key) + '\')">🔄 刷新</button>' +
+      '<button class="danger" onclick="deleteKey(\'' + escapeJs(key) + '\')">🗑️ 删除整个 Hash</button>' +
+    '</div>' +
+    '<div class="data-card" style="padding:0"><table class="data-table"><thead><tr><th>字段</th><th>值</th><th>操作</th></tr></thead><tbody>' +
+    (rows || '<tr><td colspan="3" style="text-align:center;color:#666;padding:20px">空 Hash</td></tr>') +
+    '</tbody></table></div>';
 }
 
-// === JSON 查看 ===
-function showJson(jsonStr) {
-  alert(jsonStr);
+async function hsetField(key) {
+  const f = prompt('字段名:');
+  if (f === null || !f) return;
+  const v = prompt('字段值:');
+  if (v === null) return;
+  try { await redisCmd('/hset/' + encodeURIComponent(key) + '/' + encodeURIComponent(f), 'POST', v); toast('添加成功', 'success'); selectKey(key); }
+  catch(e) { toast('失败: ' + e.message, 'error'); }
 }
 
-// === Toast ===
+async function hdelField(key, field) {
+  try { await redisCmd('/hdel/' + encodeURIComponent(key) + '/' + encodeURIComponent(field)); toast('删除成功', 'success'); selectKey(key); }
+  catch(e) { toast('失败: ' + e.message, 'error'); }
+}
+
+// ============ 删除 Key ============
+function deleteKey(key) {
+  showConfirm('确定要删除 Key「' + key + '」吗？此操作不可撤销。', async () => {
+    try { await redisCmd('/del/' + encodeURIComponent(key), 'POST'); toast('删除成功', 'success'); currentKey = null; refreshKeys(); document.getElementById('content').innerHTML = '<div class="empty-state"><div class="icon">🗑️</div><p>已删除</p></div>'; }
+    catch(e) { toast('删除失败: ' + e.message, 'error'); }
+  });
+}
+
+// ============ 新建 Key ============
+function openAddModal() {
+  document.getElementById('addModal').classList.remove('hidden');
+  document.getElementById('newKey').value = '';
+  document.getElementById('newValue').value = '';
+  document.getElementById('newListValue').value = '';
+  document.getElementById('newHashValue').value = '';
+  document.getElementById('newTtl').value = '0';
+  document.getElementById('newType').value = 'string';
+  onTypeChange();
+}
+function closeAddModal() { document.getElementById('addModal').classList.add('hidden'); }
+function onTypeChange() {
+  const t = document.getElementById('newType').value;
+  document.getElementById('stringFields').style.display = t === 'string' ? 'block' : 'none';
+  document.getElementById('listFields').style.display = t === 'list' ? 'block' : 'none';
+  document.getElementById('hashFields').style.display = t === 'hash' ? 'block' : 'none';
+}
+
+async function createKey() {
+  const key = document.getElementById('newKey').value.trim();
+  const type = document.getElementById('newType').value;
+  const ttl = parseInt(document.getElementById('newTtl').value) || 0;
+  if (!key) { toast('请输入 Key 名称', 'error'); return; }
+  if (keyCache.includes(key)) { toast('Key 已存在', 'error'); return; }
+
+  try {
+    if (type === 'string') {
+      const val = document.getElementById('newValue').value;
+      await redisCmd('/set/' + encodeURIComponent(key), 'POST', val);
+    } else if (type === 'list') {
+      const lines = document.getElementById('newListValue').value.split('\n').filter(l => l.length > 0);
+      for (const line of lines) await redisCmd('/rpush/' + encodeURIComponent(key), 'POST', line);
+    } else if (type === 'hash') {
+      let obj;
+      try { obj = JSON.parse(document.getElementById('newHashValue').value); } catch(e) { toast('Hash 必须是合法 JSON', 'error'); return; }
+      for (const f in obj) await redisCmd('/hset/' + encodeURIComponent(key) + '/' + encodeURIComponent(f), 'POST', obj[f]);
+    }
+    if (ttl > 0) await redisCmd('/expire/' + encodeURIComponent(key) + '/' + ttl);
+    toast('创建成功', 'success');
+    closeAddModal();
+    refreshKeys();
+  } catch(e) { toast('创建失败: ' + e.message, 'error'); }
+}
+
+// ============ 确认弹窗 ============
+function showConfirm(text, cb) {
+  document.getElementById('confirmText').textContent = text;
+  confirmCallback = cb;
+  document.getElementById('confirmModal').classList.remove('hidden');
+}
+function closeConfirm() { document.getElementById('confirmModal').classList.add('hidden'); confirmCallback = null; }
+async function doConfirm() {
+  if (confirmCallback) { closeConfirm(); await confirmCallback(); }
+}
+
+// ============ 工具函数 ============
+function ttlTag(ttl) {
+  if (ttl === -1) return '<span class="ttl-tag permanent">永久</span>';
+  if (ttl === -2) return '<span class="ttl-tag">已过期</span>';
+  if (ttl < 3600) return '<span class="ttl-tag expiring">' + ttl + 's</span>';
+  return '<span class="ttl-tag">' + Math.floor(ttl/3600) + 'h</span>';
+}
+
+function escapeHtml(str) {
+  if (str === null || str === undefined) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+function escapeJs(str) {
+  return String(str).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+}
+
 function toast(msg, type) {
   const el = document.getElementById('toast');
   el.textContent = msg;
   el.className = 'toast show ' + (type || '');
   setTimeout(() => el.className = 'toast', 2000);
-}
-
-// === HTML 转义 ===
-function escapeHtml(str) {
-  if (str === null || str === undefined) return '';
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
 }
 </script>
 
