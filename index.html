@@ -198,10 +198,10 @@
     <div class="logo">💳</div>
     <h2>卡包应用</h2>
     <p class="subtitle">银行卡号一键复制 · 证件照随时打印</p>
-    <div class="version-tag" id="versionTag">v1.6.0 · 最新版</div>
+    <div class="version-tag" id="versionTag">v1.6.1 · 最新版</div>
 
-    <a class="btn btn-primary" id="downloadPrimary" href="apk/cardwallet-latest.apk?v=1.6.0">⬇️ 下载 APK（v1.6.0）</a>
-    <a class="btn btn-secondary" id="downloadBackup" href="https://raw.githubusercontent.com/Tony-zd/cardwallet-release/main/apk/cardwallet-latest.apk?v=1.6.0">🪞 备用下载（GitHub Raw）</a>
+    <a class="btn btn-primary" id="downloadPrimary" href="apk/cardwallet-latest.apk?v=1.6.1">⬇️ 下载 APK（v1.6.1）</a>
+    <a class="btn btn-secondary" id="downloadBackup" href="https://raw.githubusercontent.com/Tony-zd/cardwallet-release/main/apk/cardwallet-latest.apk?v=1.6.1">🪞 备用下载（GitHub Raw）</a>
 
     <div class="features">
       <h3>主要功能</h3>
@@ -215,21 +215,19 @@
     </div>
 
     <div class="changelog">
-      <h3>📋 v1.6.0 更新内容</h3>
-      <p><b>🎨 视觉升级（方案 C · 现代质感）</b></p>
-      <p>• 主色升级为靛紫渐变（#6366F1 → #8B5CF6），更现代通透</p>
-      <p>• 卡片圆角增大至 18px，阴影更柔和分层</p>
-      <p>• 浅色背景改为 #F8FAFC 浅灰蓝，干净不刺眼</p>
-      <p>• 底部导航栏玻璃态半透明效果</p>
-      <p><b>✨ 交互动效系统</b></p>
-      <p>• 卡片点击 ripple 涟漪扩散 + scale 按压反馈</p>
-      <p>• 卡片列表交错入场动画（依次淡入上移）</p>
-      <p>• 底部操作面板 350ms 弹性上滑弹出</p>
-      <p>• Toast 提示 spring 弹性弹出</p>
-      <p>• 开关滑块 spring 弹簧切换</p>
-      <p>• FAB 加号按钮弹性缩放按压</p>
-      <p>• 页面切换淡入上移过渡</p>
-      <p>• 空状态图标轻浮动</p>
+      <h3>📋 v1.6.1 更新内容</h3>
+      <p><b>🔒 安全加固</b></p>
+      <p>• 备份文件自动剔除 API 密钥、激活码等敏感字段，支持「加密备份」（应用锁密码加密，可跨设备恢复）</p>
+      <p>• 应用锁密码升级加盐哈希，连续输错 5 次锁定 5 分钟，防暴力破解</p>
+      <p>• 导入备份时逐卡校验数据，损坏文件不再导致异常</p>
+      <p>• 云端同步签名机制升级（防重放），付款流程更安全</p>
+      <p><b>✨ 功能修复</b></p>
+      <p>• 百度 OCR 更稳定：改走原生网络通道，不再受浏览器限制影响</p>
+      <p>• 到期提醒后台也能送达：应用退出或被杀后，提醒仍会按时通知</p>
+      <p>• 修复个别情况下卡片保存被旧数据覆盖的问题</p>
+      <p><b>🧹 其他</b></p>
+      <p>• 安装包体积减少约 3MB</p>
+      <p>• 若干细节优化</p>
     </div>
 
     <div class="notice">

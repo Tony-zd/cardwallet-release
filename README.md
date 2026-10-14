@@ -5,7 +5,7 @@
 
 ## 下载
 
-- **最新版本**：[v1.6.0](apk/cardwallet-latest.apk)
+- **最新版本**：[v1.6.1](apk/cardwallet-latest.apk)
 - **历史版本**：见 [apk/](apk/) 目录
 
 ## 文件结构
