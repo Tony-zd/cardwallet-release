@@ -4,6 +4,21 @@
 
 ---
 
+## v1.9.17 — 2026-10-18
+
+### 🔔 通知可靠性修复 + 提醒节奏按用户确认重排（5 项确认选择 + 1 个 P0）
+
+> 用户对通知方案 5 个选择项的确认：① 过期后第 3 天再提醒一次（需要）② 临近 7 天周期去重（可以）③ 点击直达卡片详情 ④ 提醒时间 08/09/10 可选 ⑤ 锁屏 PRIVATE（可以）。实现时顺带坐实并修复了一个 P0 缺陷。
+
+- **P0：每日提醒闹钟从未真正注册（v1.9.3 起累积）**：`ReminderReceiver.scheduleNext` 调用 `AlarmManager.setExactAndAllowWhileIdle`，但 targetSdk 35 且 manifest 未声明 `SCHEDULE_EXACT_ALARM`——Android 12+ 上该调用直接抛 `SecurityException`，被外层 `catch (Exception)` 吞掉，闹钟实际从未排上，「退后台后到期提醒」从 v1.9.3 第一天起就是坏的，而注释还写着「无需精确闹钟权限」（恰恰相反）。修复：① manifest 声明 `SCHEDULE_EXACT_ALARM`（安装即授予的普通权限）；② 精确调用单独 try，用户若在系统设置撤销精确闹钟权限，降级 `setAndAllowWhileIdle`（无需权限、Doze 可唤醒，代价仅分钟级延迟，对每日提醒无感知）
+- **过期卡片每天重发通知**：旧逻辑 `key = cardId_今天` 按天去重，过期卡片每天都是新 key——每天 09:00 闹钟一条 + 开 App 立即一条，约两周后仍天天响。按用户确认重排为：到期前 7 天周期节点（remindDays=30 → 30/23/16/9/2 天各一条）；到期前 1 天内排「到期当天」一条（当天开 App 立即发，没开由系统闹钟按时发，两端经统一 key `cardId_发送日` + `KEY_SENT` 双向去重）；已过期仅第 3 天再提醒一次，其余天数不再打扰（卡片在「我的 → 到期提醒」页常驻可查）
+- **通知点击直达卡片详情**：通知构造 `contentIntent`（`PendingIntent.getActivity` 带 `cardId` extra）→ MainActivity singleTask 的 `onNewIntent` 直接调 JS `go('detail')`（热启动）；冷启动写 CapacitorStorage、JS init 就绪后读 prefs 跳转并清除。新增 `window.__cwOnNotificationClick` 桥
+- **提醒时间 08/09/10 可选**：新增设置项 `reminderHour`（默认 9，设置页「每日提醒时间」下拉）；`registerDailyReminder` 按所选值注册并把小时数写 CapacitorStorage，`BootReceiver` 开机恢复闹钟时读取（缺省 09:00）
+- **锁屏可见性 PRIVATE**：通知渠道 `setLockscreenVisibility(VISIBILITY_PRIVATE)` + 通知 builder `setVisibility(PRIVATE)` + `setPublicVersion`（锁屏只显示「点击查看详情」，不泄露卡片名称/类型），JS `ensureNotificationChannel` 的 visibility 参数由 PUBLIC(1) 改为 PRIVATE(-1)
+- 验证：native 侧逐项代码审查（权限/降级/两个发送路径的 PRIVATE 与 contentIntent）；JS 逻辑用等价单元测试覆盖 reminderNodes 全部分支（30/23/16/9/2 节点、明天到期兜底、-3 天、-1/-2/-4 均不排）；既有全量回归套件复跑无破坏；发布前未就此专项另跑 Playwright 端到端（通知为原生系统行为，WebView 探针无法触达），建议装机后按更新日志手动核验一次
+
+---
+
 ## v1.9.16 — 2026-10-18
 
 ### ⚡ 首页刷新体感优化（1 条反馈）
