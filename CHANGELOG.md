@@ -4,6 +4,20 @@
 
 ---
 
+## v2.1.8 — 2026-10-20
+
+### 所有卡片预览删除（v2.1.6 / v2.1.7 收口）
+
+> 用户原话：「所有的预览都删掉」。
+
+- **详情页 hero 封面预览删除**：`renderDetail` 首行的 `detail-hero`（cardVisualHTML 封面卡）整体移除，详情页打开即「复制全部信息」+ 信息清单；至此添加卡片、编辑卡片、卡片详情三处卡片预览全删净
+- **死代码连根清除**：`cardVisualHTML` 函数（含身份证特判分支）、仅它使用的 `HOLDER_LABEL` 常量、styles.css `.card-visual` 全套（::before/::after 光斑、cv-top/bottom/number/holder/brand/chip、id-card 证件样式、12 个 data-kind 渐变、custom-kind 自定义 Type 渐变）、`.detail-hero` 间距规则、深色/纸墨/午夜三主题的 `.card-visual` box-shadow 微调
+- **保留边界（功能流预览，非卡片预览）**：OCR 拍照确认预览（ocr-photo-preview，拍照后核对再识别）、旋转裁剪画布预览（#cePreview，裁剪操作界面本身）、导出 PDF 前 A4 排版预览（#pdfPreviewCanvas，确认排版再保存）——三者删任一即断对应功能，故保留
+- 影响面评估：`displayTitle/displayNumber/displaySub/maskStr/customKindOf` 等封面曾用的共用函数在首页列表、复制、PDF、搜索处仍有多处调用，不受影响；首页紧凑列表的左侧色标（KIND_COLORS）保留
+- 验证：v2.1.8 专项 e2e 31/31（详情页首元素=复制全部、三页预览皆无、功能按钮在位、四主题无残留、功能区预览保留）、v2.1.6 专项 14/14、v2.1.4 专项 26/26、v2.1.1 回归 48/48、机检 44 项
+
+---
+
 ## v2.1.7 — 2026-10-20
 
 ### 新建卡片页顶部预览也删除（v2.1.6 延续）
