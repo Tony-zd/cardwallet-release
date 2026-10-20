@@ -4,6 +4,22 @@
 
 ---
 
+## v2.2.0 — 2026-10-22
+
+### 样式框架四件套：Tokens 两层架构 / 五基础组件 / 目录分层 / 业务孤岛收编 + CI 门禁
+
+> 治理目标：把 v1.x 以来在 styles.css 单文件里自然生长出的 2300 行样式，重构为「设计令牌两层（Primitive→Semantic）+ 四主题覆盖」的可治理体系；组件只引用语义令牌，主题只覆盖语义层，裸色值/写死色归零。
+
+- **B1 Tokens 两层架构**：原散落各处的色值/圆角/阴影/动效全部收敛为两层令牌。语义层默认浅色 + dark/paper/midnight 三主题块覆盖，11 + 10 + 11 条 scattered 主题补丁全部收敛为令牌（主题补丁清零）；新增语义令牌：type-opt 选中态、card-border、menu-list、search、skel-shimmer、tile 瓦片系、press-overlay、on-primary-15/72、danger-line、ok-line、knob-line、toast-bg、editor-bg/text-3 等
+- **B2 五基础组件**：抽取 .btn/.card/.field/.list-row/.chip 五个基型 + 分组修饰符（chip-{warn,danger,ok,info}）；app.js 模板中 8 处写死内联色值改用组件类；删除死代码 .tag* 系
+- **B3 目录分层**：styles.css 拆分为 styles-src/ 四文件（tokens 248 行 / base 224 / components 1368 / features 457），新增 merge-styles.sh（合并）与 check-styles-fresh.sh（防陈旧，styles.css 头注「由四文件生成」）；拆分经 40 视图 × 4 主题像素回归 40/40 零视觉变化
+- **B4 业务孤岛收编**：OCR 配置状态卡、底部面板按钮、导出成功信息区、旋转裁剪编辑器、Toast、Switch 滑块等孤岛样式全部令牌化；修复深色/暖纸主题下导出信息区写死 #f7f8fa 亮灰块（约 19% 画面差异）、底部面板主按钮仍是 v1.x 天蓝 #5dade2 未跟随 v2.0 靛紫主色两处主题断裂
+- **CI 样式门禁** check-style-gates.sh（基线制只减不增）：裸色值 0 / 内联 style 100 / 内联 px 声明 109 / 主题补丁收敛 tokens.css / var fallback 0 / 合成新鲜度；已接入 build-release.sh [1.5/6]，样式不合规直接阻断发布构建
+- **回归方法升级**（噪声根因定位）：入场动画 300ms 采集相位差导致亚像素文字抗锯齿噪声误报——harness 加入 350ms 预等 + 动画状态检查 + 连拍稳定性哈希（12 次重试），diff 工具加入 3×3 腐蚀过滤（AA 细线不计入），区分 raw%/实体% 双指标
+- 验证：B1/B2/B3/B4 四轮像素回归（40 视图 × 4 主题）逐轮验收；B4 另采 16 组同会话 A/B 专项对照（4 主题 × 4 弹窗视图）逐项定性；e2e 全量回归 14 个套件零产品回归（4 项失败均为基线上同样失败的历史过时测试：.hs-btn 控件移除 / 类型计数演进 / 启动时序重构 / 测试脚本自身 bug）
+
+---
+
 ## v2.1.9 — 2026-10-21
 
 ### 启动零转圈 + 修「点我的概率跳回首页」
