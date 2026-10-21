@@ -17,6 +17,7 @@
 | `CHANGELOG.md` | 版本更新日志（App 内检查更新会读取此文件） |
 | `index.html` | 下载引导页（部署到 Gitee Pages / GitHub Pages） |
 | `pay-qrcode.png` | 激活码购买付款码（App 内购买激活码弹窗展示） |
+| `promo/` | 推广物料：海报 poster.png（1080×1440）+ 小红书软文 + 二维码与海报源文件 |
 
 ## 检查更新机制
 
