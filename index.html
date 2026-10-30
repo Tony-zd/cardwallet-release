@@ -132,6 +132,23 @@
   }
   .features li::before { content: "✓"; position: absolute; left: 0; color: #10b981; font-weight: bold; }
 
+  .security {
+    text-align: left;
+    margin: 0 0 16px;
+    padding: 14px 16px;
+    background: #ecfdf5;
+    border-left: 4px solid #10b981;
+    border-radius: 8px;
+  }
+  .security h3 { font-size: 14px; color: #047857; margin-bottom: 8px; }
+  .security ul { list-style: none; }
+  .security li {
+    font-size: 13px; color: #065f46; padding: 3px 0; padding-left: 20px; position: relative;
+    line-height: 1.5;
+  }
+  .security li::before { content: "🛡️"; position: absolute; left: 0; font-size: 11px; top: 5px; }
+  .security li b { color: #047857; }
+
   .notice {
     background: #fef3c7;
     border-left: 4px solid #f59e0b;
@@ -169,6 +186,7 @@
     <h1>信息卡包</h1>
     <p class="hero-sub">一张卡片管理所有卡。银行卡号一键复制、证件照高清保存打印，需要时秒级调取，告别翻找相册和聊天记录。</p>
     <ul class="hero-features">
+      <li>数据仅存手机本地，AES 加密，不上传服务器</li>
       <li>银行卡号一键复制，转账不再手输</li>
       <li>证件照高清保存，随时打印复印</li>
       <li>拍照 OCR 识别，自动录入卡片信息</li>
@@ -182,7 +200,7 @@
   <div class="card">
     <div class="logo">💳</div>
     <h2>信息卡包</h2>
-    <p class="subtitle">常用信息加密管理 · 一秒取用</p>
+    <p class="subtitle">数据仅存本机 · 加密保护 · 一秒取用</p>
     <div class="version-tag" id="versionTag">v2.2.6 · 最新版</div>
 
     <a class="btn btn-primary" id="downloadPrimary" href="https://raw.giteeusercontent.com/zhongda-st/cardwallet-release/raw/main/apk/cardwallet-latest.apk">⬇️ 下载 APK（v2.2.6 · 国内高速）</a>
@@ -191,6 +209,7 @@
     <div class="features">
       <h3>主要功能</h3>
       <ul>
+        <li>🔒 数据仅存手机本地，加密保存，<b>不上传服务器</b></li>
         <li>常用信息一键取用（整段复制）</li>
         <li>⚡「取用」模式：按复制次数排序，卡片上下分层一眼看全，复制次数上卡，手机号脱敏展示</li>
         <li>地址/联系人/账号/车辆同样一键复制</li>
@@ -199,6 +218,16 @@
         <li>拍照 OCR 自动录入</li>
         <li>多信息分类管理</li>
         <li>到期提醒，及时换证</li>
+      </ul>
+    </div>
+
+    <div class="security">
+      <h3>🛡️ 数据安全 · 仅存本机</h3>
+      <ul>
+        <li><b>不上传服务器：</b>无账号系统，卡片数据只保存在你的手机里，开发者也无法看到</li>
+        <li><b>AES-GCM 加密存储：</b>密钥由 Android Keystore（系统安全模块）生成保护，不可导出</li>
+        <li><b>应用密码锁：</b>独立密码锁，连续输错自动锁定，防他人翻看</li>
+        <li><b>加密备份：</b>备份文件加密保存，默认剔除敏感字段，泄露也无法读取</li>
       </ul>
     </div>
 
