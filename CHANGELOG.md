@@ -4,6 +4,29 @@
 
 ---
 
+## v2.2.7 — 2026-11-24
+
+### 明文流量收紧（安全加固）+ Obtainium 自动更新渠道
+
+> 承接「应用商店上架可行性分析」与「GitHub 同类项目调研」两项结论：全局明文流量配置与信任用户 CA 是 Google Play / IzzyOnDroid 收录的共同前置风险；同类隐私卡包普遍采用 Obtainium + GitHub Releases 分发。本版一次性完成两项零风险加固，纯配置与分发层改动，App 行为零变更。
+
+**Android 网络安全配置（03-Android原生工程）**
+- `res/xml/network_security_config.xml`：`base-config` 的 `cleartextTrafficPermitted="true"` → **`false`**；移除 `certificates src="user"`（不再信任用户自行安装的 CA，防中间人抓包读取银行卡/证件信息）；删除 vercel.app / upstash.io / workers.dev / aip.baidubce.com / rest.baidubce.com / fanyi-api.baidu.com 六个外部域名的明文白名单
+- 仅保留 `localhost` / `127.0.0.1` 回环地址明文许可（本地调试与插件回环通信，数据不出设备）
+- `AndroidManifest.xml`：`android:usesCleartextTraffic="true"` → **`false`**（minSdk 23，对 NSC 未覆盖的老系统同样生效，双保险）
+- **兼容性核实**：Capacitor `server.androidScheme = "https"` + `hostname = localhost` + `allowMixedContent = false`，WebView 本地资源走 `https://localhost`，不依赖明文；全工程无 `http://` 请求，CloudBase / 百度 OCR / jsdelivr CDN / Pages 全部 HTTPS —— 收紧后功能零影响
+
+**Obtainium 接入**
+- 在公开发布仓 `Tony-zd/cardwallet-release` 建立 **GitHub Release**（tag `v2.2.7`，附 `cardwallet-v2.2.7.apk`），Obtainium 以仓库 URL 为源即可检测版本并自动更新
+- 下载页新增「🔄 自动更新（推荐）」区块：官方 redirect 一键导入深链 + Obtainium 徽章 + 手动源 URL
+- README 新增 Obtainium 章节与发布流程步骤（每版必须同步创建 GitHub Release，否则自动更新断档）
+
+**验证**
+- 解包验证：versionName 2.2.7 / versionCode 86 / applicationId com.cardwallet.app；Manifest `usesCleartextTraffic="false"`；编译后 NSC（`res/8G.xml`）base-config=false、仅 system CA、仅回环白名单；签名 `CN=CardWallet` SHA-256 `00a57aa0…` 与历史一致；assets/public 四件套 md5 与源码逐值一致
+- 六项样式门禁全过；APK md5 `aa91812e683c22f6f77e2bf5a67ecf27`（9,798,648 字节）
+
+---
+
 ## v2.2.6 — 2026-10-27
 
 ### 全站按钮体系统一「体系 A · 淡彩呼吸」

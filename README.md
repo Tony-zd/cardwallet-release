@@ -5,7 +5,7 @@
 
 ## 下载
 
-- **最新版本**：[v2.2.6](apk/cardwallet-latest.apk)
+- **最新版本**：[v2.2.7](apk/cardwallet-latest.apk)
 - **历史版本**：见 [apk/](apk/) 目录
 
 ## 文件结构
@@ -16,6 +16,7 @@
 | `apk/cardwallet-vX.Y.Z.apk` | 历史归档 APK |
 | `CHANGELOG.md` | 版本更新日志（App 内检查更新会读取此文件） |
 | `index.html` | 下载引导页（部署到 Gitee Pages / GitHub Pages） |
+| `obtainium-badge.png` | Obtainium 徽章（自托管，供下载页一键导入使用） |
 | `pay-qrcode.png` | 激活码购买付款码（App 内购买激活码弹窗展示） |
 | `promo/` | 推广物料：海报 poster.png（1080×1440）+ 小红书软文 + 二维码与海报源文件 |
 
@@ -30,13 +31,33 @@ https://gitee.com/zhongda-st/cardwallet-release/raw/main/CHANGELOG.md
 > HttpNative 走原生网络层，**不受 WebView CORS 限制**。
 > 公开仓库匿名访问，无需 token。
 
+## Obtainium 自动更新（推荐）
+
+[Obtainium](https://github.com/ImranR98/Obtainium) 直接从 GitHub Releases 安装并更新应用，无需应用商店、无需备案，新版本自动提醒。**本仓库的 GitHub Release 即为它的更新源**：
+
+| 项 | 值 |
+|---|---|
+| 源地址 | `https://github.com/Tony-zd/cardwallet-release` |
+| 版本检测 | Release tag（如 `v2.2.7`），非 draft / 非 prerelease |
+| APK 附件 | 每个 Release 附一个 `cardwallet-vX.Y.Z.apk` |
+| 包名 | `com.cardwallet.app` |
+
+接入方式：
+
+1. **一键导入**（下载页徽章）：`https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22com.cardwallet.app%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2FTony-zd%2Fcardwallet-release%22%2C%22author%22%3A%22Tony-zd%22%2C%22name%22%3A%22%E4%BF%A1%E6%81%AF%E5%8D%A1%E5%8C%85%22%7D`
+2. **手动添加**：Obtainium → 添加应用 → 粘贴源地址
+3. **简易深链**：`obtainium://add/https://github.com/Tony-zd/cardwallet-release`
+
+> ⚠️ **每版发版必须同步创建 GitHub Release**（见下方发布流程第 5 步），否则 Obtainium 端检测不到新版本，自动更新会断档。
+
 ## 下载源
 
 | 通道 | URL | 备注 |
 |---|---|---|
 | Gitee CDN 直链（主） | https://raw.giteeusercontent.com/zhongda-st/cardwallet-release/raw/main/apk/cardwallet-latest.apk | 国内 CDN，**无需登录**，海报二维码即此链 |
-| Gitee Release 附件 | https://gitee.com/zhongda-st/cardwallet-release/releases/download/v2.2.4/cardwallet-latest.apk | 国内备用；**微信 WebView 内会跳微信 OAuth 登录墙**，需在浏览器打开 |
-| Gitee Release 下载页 | https://gitee.com/zhongda-st/cardwallet-release/releases/tag/v2.2.4 | 版本说明 + 全部通道（普通浏览器匿名可看） |
+| Gitee Release 附件 | https://gitee.com/zhongda-st/cardwallet-release/releases/download/v2.2.7/cardwallet-latest.apk | 国内备用；**微信 WebView 内会跳微信 OAuth 登录墙**，需在浏览器打开 |
+| Gitee Release 下载页 | https://gitee.com/zhongda-st/cardwallet-release/releases/tag/v2.2.7 | 版本说明 + 全部通道（普通浏览器匿名可看） |
+| GitHub Release（Obtainium 源） | https://github.com/Tony-zd/cardwallet-release/releases/tag/v2.2.7 | 自动更新源，附 `cardwallet-v2.2.7.apk` |
 | GitHub Pages | https://tony-zd.github.io/cardwallet-release/ | 备用入口，页面内含全部下载通道 |
 | GitHub Raw | https://raw.githubusercontent.com/Tony-zd/cardwallet-release/main/apk/cardwallet-latest.apk | 海外直链，国内访问慢 |
 | Gitee Raw | https://gitee.com/zhongda-st/cardwallet-release/raw/main/CHANGELOG.md | CHANGELOG 直链，App 检查更新源 |
@@ -68,7 +89,8 @@ https://gitee.com/zhongda-st/cardwallet-release/raw/main/CHANGELOG.md
 2. 复制 APK 到本仓库 `apk/` 目录，同时覆盖 `cardwallet-latest.apk`
 3. 更新 `CHANGELOG.md`，在顶部新增 `## vX.Y.Z — YYYY-MM-DD` 段落
 4. 提交并推送到 Gitee 和 GitHub
-5. **创建 Gitee Release 并上传 APK 附件**（API，约 1 分钟；二维码指向 `cardwallet-latest.apk` 固定路径，无需改动）：
+5. **创建 GitHub Release（Obtainium 更新源，必做）**：tag `vX.Y.Z`、非 draft / 非 prerelease、附 `apk/cardwallet-vX.Y.Z.apk`；否则 Obtainium 端检测不到新版本，自动更新断档
+6. **创建 Gitee Release 并上传 APK 附件**（API，约 1 分钟；二维码指向 `cardwallet-latest.apk` 固定路径，无需改动）：
    ```bash
    TOKEN=<gitee token>
    # 建 Release（target_commitish 必填）
@@ -79,7 +101,7 @@ https://gitee.com/zhongda-st/cardwallet-release/raw/main/CHANGELOG.md
    curl -X POST "https://gitee.com/api/v5/repos/zhongda-st/cardwallet-release/releases/<id>/attach_files?access_token=$TOKEN" \
      -F "file=@apk/cardwallet-latest.apk;type=application/vnd.android.package-archive"
    ```
-6. App 检查更新时即时拉取最新 CHANGELOG（GitHub raw 有约 5 分钟缓存）
+7. App 检查更新时即时拉取最新 CHANGELOG（GitHub raw 有约 5 分钟缓存）
 
 ## 联系反馈
 
